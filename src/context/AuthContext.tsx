@@ -17,6 +17,7 @@ interface AuthContextType {
   login: (credentials: { email: string; password: string }) => Promise<void>;
   logout: () => Promise<void>;
   refreshProfile: () => Promise<void>;
+  updateProfile: (formData: FormData) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -77,13 +78,25 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  const updateProfile = async (formData: FormData) => {
+    try {
+      const response = await api.post<{ success: boolean; message: string }>('/profile-update', formData);
+      if (response.success) {
+        await fetchProfile();
+      }
+    } catch (error) {
+      console.error('Failed to update profile:', error);
+      throw error;
+    }
+  };
+
   const refreshProfile = async () => {
     setLoading(true);
     await fetchProfile();
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, refreshProfile }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, refreshProfile, updateProfile }}>
       {children}
     </AuthContext.Provider>
   );

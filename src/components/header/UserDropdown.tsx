@@ -2,10 +2,16 @@ import { useState } from "react";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { useAuth } from "../../context/AuthContext";
+import { UserCircleIcon } from "../../icons";
 
 export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const { user, logout } = useAuth();
+
+  const storageUrl = import.meta.env.VITE_STORAGE_URL;
+  const avatarUrl = user?.avatar 
+    ? (user.avatar.startsWith('http') ? user.avatar : `${storageUrl}${user.avatar}`)
+    : null;
 
   function toggleDropdown() {
     setIsOpen(!isOpen);
@@ -27,13 +33,17 @@ export default function UserDropdown() {
         className="flex items-center text-gray-700 dropdown-toggle dark:text-gray-400"
       >
         <span className="mr-3 overflow-hidden rounded-full h-11 w-11">
-          <img
-            src={user?.avatar || "/images/user/owner.jpg"}
-            alt="User"
-            onError={(e) => {
-              (e.target as HTMLImageElement).src = "/images/user/owner.jpg";
-            }}
-          />
+          {avatarUrl ? (
+            <img
+              src={avatarUrl}
+              alt="User"
+              className="object-cover w-full h-full"
+            />
+          ) : (
+            <div className="flex items-center justify-center w-full h-full bg-gray-100 dark:bg-gray-800 text-gray-400">
+              <UserCircleIcon className="w-6 h-6" />
+            </div>
+          )}
         </span>
 
         <span className="block mr-1 font-medium text-theme-sm">{user?.name?.split(" ")[0] || "User"}</span>
