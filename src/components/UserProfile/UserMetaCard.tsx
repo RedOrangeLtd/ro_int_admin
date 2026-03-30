@@ -16,7 +16,7 @@ export default function UserMetaCard() {
   const [isUpdating, setIsUpdating] = useState(false);
 
   const storageUrl = import.meta.env.VITE_STORAGE_URL;
-  const avatarUrl = user?.avatar 
+  const avatarUrl = user?.avatar
     ? (user.avatar.startsWith('http') ? user.avatar : `${storageUrl}${user.avatar}`)
     : null;
 
@@ -36,7 +36,7 @@ export default function UserMetaCard() {
       if (selectedFile) {
         formData.append("avatar", selectedFile);
       }
-      
+
       await updateProfile(formData);
       closeModal();
       setSelectedFile(null);
@@ -168,11 +168,6 @@ export default function UserMetaCard() {
                   <div className="col-span-2 lg:col-span-1">
                     <Label>Phone</Label>
                     <Input type="text" value={user?.phone || "Not set"} readOnly />
-                  </div>
-
-                  <div className="col-span-2">
-                    <Label>Bio</Label>
-                    <Input type="text" value={user?.roles?.join(", ") || "User"} readOnly />
                   </div>
                 </div>
               </div>

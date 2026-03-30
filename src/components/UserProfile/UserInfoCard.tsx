@@ -91,15 +91,6 @@ export default function UserInfoCard() {
                 {user?.phone || "Not set"}
               </p>
             </div>
-
-            <div>
-              <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                Bio
-              </p>
-              <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                {user?.roles?.join(", ") || "User"}
-              </p>
-            </div>
           </div>
         </div>
 
@@ -192,11 +183,6 @@ export default function UserInfoCard() {
                   <div className="col-span-2 lg:col-span-1">
                     <Label>Phone</Label>
                     <Input type="text" value={user?.phone || "Not set"} readOnly />
-                  </div>
-
-                  <div className="col-span-2">
-                    <Label>Bio</Label>
-                    <Input type="text" value={user?.roles?.join(", ") || "User"} readOnly />
                   </div>
                 </div>
               </div>
