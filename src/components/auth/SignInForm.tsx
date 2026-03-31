@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from "../../icons";
 import Label from "../form/Label";
@@ -15,12 +15,35 @@ export default function SignInForm() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  // Captcha State
+  const [num1, setNum1] = useState(0);
+  const [num2, setNum2] = useState(0);
+  const [captchaAnswer, setCaptchaAnswer] = useState("");
+
   const { login } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    generateCaptcha();
+  }, []);
+
+  const generateCaptcha = () => {
+    setNum1(Math.floor(Math.random() * 10) + 1);
+    setNum2(Math.floor(Math.random() * 10) + 1);
+    setCaptchaAnswer("");
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    // Validate Captcha
+    if (parseInt(captchaAnswer) !== num1 + num2) {
+      setError("Incorrect captcha answer. Please try again.");
+      generateCaptcha();
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -28,6 +51,7 @@ export default function SignInForm() {
       navigate("/");
     } catch (err: any) {
       setError(err.message || "The provided credentials are incorrect.");
+      generateCaptcha(); // Refresh captcha on failed attempt
     } finally {
       setLoading(false);
     }
@@ -105,12 +129,20 @@ export default function SignInForm() {
                       Keep me logged in
                     </span>
                   </div>
-                  {/* <Link
-                    to="/reset-password"
-                    className="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400"
-                  >
-                    Forgot password?
-                  </Link> */}
+                </div>
+
+                <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-800">
+                  <Label>
+                    Verification: What is {num1} + {num2}? <span className="text-error-500">*</span>
+                  </Label>
+                  <Input
+                    type="number"
+                    placeholder="Enter answer"
+                    value={captchaAnswer}
+                    onChange={(e) => setCaptchaAnswer(e.target.value)}
+                    required
+                  />
+                  <p className="mt-1 text-xs text-gray-500">Security check to prevent bot attacks</p>
                 </div>
                 <div>
                   <Button
