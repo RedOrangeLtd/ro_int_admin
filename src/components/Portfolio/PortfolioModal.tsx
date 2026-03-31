@@ -4,6 +4,7 @@ import Button from "../ui/button/Button";
 import Input from "../form/input/InputField";
 import RichTextEditor from "../form/input/RichTextEditor";
 import FileInput from "../form/input/FileInput";
+import Checkbox from "../form/input/Checkbox";
 import { PortfolioProject } from "../../types/portfolio";
 
 interface PortfolioModalProps {
@@ -205,25 +206,16 @@ export default function PortfolioModal({
           </div>
         </div>
 
-        <div className="flex items-center gap-3 py-2">
-          <button
-            type="button"
-            onClick={() => setFormData({ ...formData, is_active: !formData.is_active })}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${formData.is_active ? 'bg-primary-600' : 'bg-gray-200 dark:bg-gray-700'
-              }`}
-          >
-            <span
-              className={`${formData.is_active ? 'translate-x-6' : 'translate-x-1'
-                } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
-            />
-          </button>
-          <span className="text-sm text-gray-600 dark:text-gray-400">
-            Active Status
-          </span>
+        <div className="py-2">
+          <Checkbox
+            label="Active Status"
+            checked={formData.is_active || false}
+            onChange={(checked: boolean) => setFormData({ ...formData, is_active: checked })}
+          />
         </div>
 
         <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-100 dark:border-white/[0.05]">
-          <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
+          <Button variant="outline" type="button" onClick={onClose} disabled={isSubmitting}>
             Cancel
           </Button>
           <Button variant="primary" type="submit" disabled={isSubmitting}>
