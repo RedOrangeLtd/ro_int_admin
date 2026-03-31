@@ -16,7 +16,7 @@ export default function UserInfoCard() {
   const [isUpdating, setIsUpdating] = useState(false);
 
   const storageUrl = import.meta.env.VITE_STORAGE_URL;
-  const avatarUrl = user?.avatar 
+  const avatarUrl = user?.avatar
     ? (user.avatar.startsWith('http') ? user.avatar : `${storageUrl}${user.avatar}`)
     : null;
 
@@ -36,7 +36,7 @@ export default function UserInfoCard() {
       if (selectedFile) {
         formData.append("avatar", selectedFile);
       }
-      
+
       await updateProfile(formData);
       closeModal();
       setSelectedFile(null);
