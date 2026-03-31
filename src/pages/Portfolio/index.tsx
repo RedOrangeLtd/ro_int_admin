@@ -130,6 +130,7 @@ export default function Portfolio() {
       </div>
 
       <PortfolioModal
+        key={editData?.id || "new"}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSave={handleSaveProject}
