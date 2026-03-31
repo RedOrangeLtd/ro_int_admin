@@ -80,7 +80,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const updateProfile = async (formData: FormData) => {
     try {
-      const response = await api.post<{ success: boolean; message: string }>('/profile-update', formData);
+      const response = await api.post<{ success: boolean; message: string }>('/profile/update', formData);
       if (response.success) {
         await fetchProfile();
       }
