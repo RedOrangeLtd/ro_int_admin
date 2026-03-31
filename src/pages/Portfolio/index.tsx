@@ -1,142 +1,151 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ComponentCard from "../../components/common/ComponentCard";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
-import RichTextEditor from "../../components/form/input/RichTextEditor";
-import PortfolioMapModal, {
-  PortfolioMapData,
-} from "../../components/Portfolio/PortfolioMapModal";
-import PortfolioMapTable from "../../components/Portfolio/PortfolioMapTable";
 import Button from "../../components/ui/button/Button";
+import PortfolioTable from "../../components/Portfolio/PortfolioTable";
+import PortfolioModal from "../../components/Portfolio/PortfolioModal";
+import { PortfolioProject } from "../../types/portfolio";
+import { portfolioService } from "../../services/portfolioService";
+import Alert from "../../components/ui/alert/Alert";
 
 export default function Portfolio() {
-  const [mapDataList, setMapDataList] = useState<PortfolioMapData[]>([
-    {
-      id: 1,
-      title: "Headquarters",
-      latitude: "40.7128",
-      longitude: "-74.0060",
-      content: "<p>Main technical division operations</p>",
-    },
-  ]);
-
-  const [isEditingContent, setIsEditingContent] = useState(false);
-  const [portfolioContent, setPortfolioContent] = useState(
-    "Explore our global offices and significant technical portfolio locations mapped out below.",
-  );
-
+  const [projects, setProjects] = useState<PortfolioProject[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editData, setEditData] = useState<PortfolioMapData | null>(null);
+  const [editData, setEditData] = useState<PortfolioProject | null>(null);
+  const [notification, setNotification] = useState<{
+    variant: "success" | "error";
+    title: string;
+    message: string;
+  } | null>(null);
+
+  useEffect(() => {
+    loadProjects();
+  }, []);
+
+  const loadProjects = async () => {
+    try {
+      setIsLoading(true);
+      const response = await portfolioService.getPortfolios();
+      if (response.success) {
+        setProjects(response.data);
+      }
+    } catch (error: any) {
+      setNotification({
+        variant: "error",
+        title: "Error",
+        message: error.message || "Failed to load projects",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleOpenModalForAdd = () => {
     setEditData(null);
     setIsModalOpen(true);
   };
 
-  const handleOpenModalForEdit = (data: PortfolioMapData) => {
-    setEditData(data);
+  const handleOpenModalForEdit = (project: PortfolioProject) => {
+    setEditData(project);
     setIsModalOpen(true);
   };
 
-  const handleSaveMapData = (savedData: PortfolioMapData) => {
-    if (savedData.id) {
-      setMapDataList(
-        mapDataList.map((item) =>
-          item.id === savedData.id ? savedData : item,
-        ),
-      );
-    } else {
-      setMapDataList([...mapDataList, { ...savedData, id: Date.now() }]);
+  const handleSaveProject = async (formData: FormData) => {
+    try {
+      let response;
+      if (editData) {
+        response = await portfolioService.updatePortfolio(editData.id, formData);
+      } else {
+        response = await portfolioService.createPortfolio(formData);
+      }
+
+      if (response.success) {
+        setNotification({
+          variant: "success",
+          title: "Success",
+          message: response.message || `Project ${editData ? "updated" : "created"} successfully`,
+        });
+        loadProjects();
+      }
+    } catch (error: any) {
+      setNotification({
+        variant: "error",
+        title: "Save Error",
+        message: error.message || "Failed to save project",
+      });
     }
   };
 
-  const handleDeleteMapData = (id: number | string) => {
-    if (window.confirm("Are you sure you want to delete this map data?")) {
-      setMapDataList(mapDataList.filter((item) => item.id !== id));
+  const handleDeleteProject = async (id: number | string) => {
+    if (!window.confirm("Are you sure you want to delete this project?")) return;
+
+    try {
+      const response = await portfolioService.deletePortfolio(id);
+      if (response.success) {
+        setNotification({
+          variant: "success",
+          title: "Deleted",
+          message: response.message || "Project removed successfully",
+        });
+        loadProjects();
+      }
+    } catch (error: any) {
+      setNotification({
+        variant: "error",
+        title: "Delete Error",
+        message: error.message || "Failed to delete project",
+      });
     }
   };
 
   return (
     <>
       <PageMeta
-        title="Portfolio Setup | Admin Dashboard"
-        description="Manage portfolio map entries"
+        title="Portfolio Management | Admin Dashboard"
+        description="Manage portfolio projects and consultancies"
       />
-      <PageBreadcrumb pageTitle="Portfolio Setup" />
+      <PageBreadcrumb pageTitle="Portfolio" />
 
       <div className="space-y-6">
-        <ComponentCard
-          title="Portfolio Section Content"
-          action={
-            isEditingContent ? (
-              <div className="flex gap-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => setIsEditingContent(false)}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  size="sm"
-                  variant="primary"
-                  onClick={() => setIsEditingContent(false)}
-                >
-                  Save
-                </Button>
-              </div>
-            ) : (
-              <Button
-                size="sm"
-                variant="primary"
-                onClick={() => setIsEditingContent(true)}
-              >
-                Edit Portfolio Content
-              </Button>
-            )
-          }
-        >
-          <div className="space-y-6">
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                Main Portfolio Description
-              </label>
-              <div className="bg-white dark:bg-gray-900 rounded-lg">
-                <RichTextEditor
-                  value={portfolioContent}
-                  onChange={setPortfolioContent}
-                  disabled={!isEditingContent}
-                  placeholder="Write your portfolio section overview content here..."
-                />
-              </div>
-            </div>
-          </div>
-        </ComponentCard>
+        {notification && (
+          <Alert
+            variant={notification.variant}
+            title={notification.title}
+            message={notification.message}
+          />
+        )}
 
-        <ComponentCard title="Portfolio Map Data">
+        <ComponentCard title="Projects List">
           <div className="mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <p className="text-sm text-gray-500 dark:text-gray-400 max-w-lg">
-              Manage the interactive map markers shown in the Portfolio section.
-              Provide precise coordinates alongside rich contextual information
-              for visitors.
+              Manage international consultancy projects. Add new entries with images,
+              descriptions, and regions to showcase our global reach.
             </p>
             <Button variant="primary" onClick={handleOpenModalForAdd}>
-              + Add Map Data
+              + Add Project
             </Button>
           </div>
 
-          <PortfolioMapTable
-            mapData={mapDataList}
-            onEdit={handleOpenModalForEdit}
-            onDelete={handleDeleteMapData}
-          />
+          {isLoading ? (
+            <div className="flex justify-center py-20">
+              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary-600"></div>
+            </div>
+          ) : (
+            <PortfolioTable
+              projects={projects}
+              onEdit={handleOpenModalForEdit}
+              onDelete={handleDeleteProject}
+            />
+          )}
         </ComponentCard>
       </div>
 
-      <PortfolioMapModal
+      <PortfolioModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onSave={handleSaveMapData}
+        onSave={handleSaveProject}
         editData={editData}
       />
     </>
