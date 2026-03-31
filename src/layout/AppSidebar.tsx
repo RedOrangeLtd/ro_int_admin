@@ -10,6 +10,7 @@ import {
   ListIcon,
   PageIcon,
   GroupIcon,
+  PlugInIcon,
   UserCircleIcon,
 } from "../icons";
 
@@ -55,6 +56,11 @@ const navItems: NavItem[] = [
     icon: <GroupIcon />,
     name: "User Management",
     path: "/users",
+  },
+  {
+    icon: <PlugInIcon />,
+    name: "Site Settings",
+    path: "/settings",
   },
   {
     icon: <UserCircleIcon />,
