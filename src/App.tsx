@@ -23,6 +23,7 @@ import About from "./pages/About";
 import Contact from "./pages/Contact";
 import Portfolio from "./pages/Portfolio";
 import HomeSetup from "./pages/HomeSetup";
+import Users from "./pages/Users";
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 
@@ -49,6 +50,7 @@ export default function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/portfolio" element={<Portfolio />} />
             <Route path="/home" element={<HomeSetup />} />
+            <Route path="/users" element={<Users />} />
 
 
             {/* Forms */}

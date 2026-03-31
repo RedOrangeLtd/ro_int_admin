@@ -46,13 +46,16 @@ const navItems: NavItem[] = [
     name: "Teams",
     path: "/teams",
   },
-
   {
     icon: <ListIcon />,
     name: "Contact Setup",
     path: "/contact",
   },
-
+  {
+    icon: <UserCircleIcon />,
+    name: "User Management",
+    path: "/users",
+  },
   {
     icon: <UserCircleIcon />,
     name: "User Profile",
