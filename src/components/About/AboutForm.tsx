@@ -3,8 +3,9 @@ import ComponentCard from "../common/ComponentCard";
 import Input from "../form/input/InputField";
 import Button from "../ui/button/Button";
 import RichTextEditor from "../form/input/RichTextEditor";
+import FileInput from "../form/input/FileInput";
 import { aboutService } from "../../services/aboutService";
-import { AboutRecord, ContentBlock } from "../../types/about";
+import { AboutRecord } from "../../types/about";
 import Alert from "../ui/alert/Alert";
 
 export default function AboutForm() {
@@ -12,6 +13,10 @@ export default function AboutForm() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [data, setData] = useState<AboutRecord | null>(null);
+
+  const [heroImageFile, setHeroImageFile] = useState<File | null>(null);
+  const [heroImagePreview, setHeroImagePreview] = useState<string | null>(null);
+
   const [notification, setNotification] = useState<{
     variant: "success" | "error";
     title: string;
@@ -28,6 +33,7 @@ export default function AboutForm() {
       const response = await aboutService.getAbout(1);
       if (response.success) {
         setData(response.data);
+        setHeroImagePreview(typeof response.data.hero_content.image === 'string' ? response.data.hero_content.image : null);
       }
     } catch (error: any) {
       setNotification({
@@ -40,11 +46,31 @@ export default function AboutForm() {
     }
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setHeroImageFile(file);
+      setHeroImagePreview(URL.createObjectURL(file));
+    }
+  };
+
   const handleSave = async () => {
     if (!data) return;
     try {
       setSaving(true);
-      const response = await aboutService.updateAbout(data.id, data);
+
+      const formData = new FormData();
+      formData.append("title", data.title || "");
+      formData.append("description[text]", data.description.text || "");
+      formData.append("hero_content[heading]", data.hero_content.heading || "");
+      formData.append("hero_content[subtext]", data.hero_content.subtext || "");
+      formData.append("is_active", data.is_active ? "1" : "0");
+
+      if (heroImageFile) {
+        formData.append("hero_content[image]", heroImageFile);
+      }
+
+      const response = await aboutService.updateAbout(data.id, formData);
       if (response.success) {
         setNotification({
           variant: "success",
@@ -53,6 +79,10 @@ export default function AboutForm() {
         });
         setIsEditing(false);
         setData(response.data);
+        setHeroImageFile(null);
+        if (typeof response.data.hero_content.image === 'string') {
+          setHeroImagePreview(response.data.hero_content.image);
+        }
       }
     } catch (error: any) {
       setNotification({
@@ -92,25 +122,6 @@ export default function AboutForm() {
     }
   };
 
-  const handleContentBlockChange = (index: number, field: keyof ContentBlock, value: string) => {
-    if (!data) return;
-    const newBlocks = [...data.content_blocks];
-    newBlocks[index] = { ...newBlocks[index], [field]: value };
-    setData({ ...data, content_blocks: newBlocks });
-  };
-
-  const addContentBlock = () => {
-    if (!data) return;
-    const newBlock: ContentBlock = { type: "text", heading: "", body: "" };
-    setData({ ...data, content_blocks: [...data.content_blocks, newBlock] });
-  };
-
-  const removeContentBlock = (index: number) => {
-    if (!data) return;
-    const newBlocks = data.content_blocks.filter((_, i) => i !== index);
-    setData({ ...data, content_blocks: newBlocks });
-  };
-
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -131,8 +142,6 @@ export default function AboutForm() {
             title: "",
             description: { text: "" },
             hero_content: { heading: "", subtext: "", image: "" },
-            banner_content: { title: "", tagline: "" },
-            content_blocks: [],
             is_active: true
           })}
         >
@@ -206,154 +215,75 @@ export default function AboutForm() {
       </ComponentCard>
 
       <ComponentCard title="Hero Section">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="md:col-span-2">
-            <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-              Hero Heading
-            </label>
-            <Input
-              type="text"
-              value={data.hero_content.heading || ""}
-              onChange={(e) => setData({
-                ...data,
-                hero_content: { ...data.hero_content, heading: e.target.value }
-              })}
-              disabled={!isEditing}
-            />
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="md:col-span-2">
+              <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                Hero Heading
+              </label>
+              <Input
+                type="text"
+                value={data.hero_content.heading || ""}
+                onChange={(e) => setData({
+                  ...data,
+                  hero_content: { ...data.hero_content, heading: e.target.value }
+                })}
+                disabled={!isEditing}
+              />
+            </div>
+            <div className="md:col-span-2">
+              <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                Hero Subtext
+              </label>
+              <Input
+                type="text"
+                value={data.hero_content.subtext || ""}
+                onChange={(e) => setData({
+                  ...data,
+                  hero_content: { ...data.hero_content, subtext: e.target.value }
+                })}
+                disabled={!isEditing}
+              />
+            </div>
           </div>
-          <div className="md:col-span-2">
-            <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-              Hero Subtext
-            </label>
-            <Input
-              type="text"
-              value={data.hero_content.subtext || ""}
-              onChange={(e) => setData({
-                ...data,
-                hero_content: { ...data.hero_content, subtext: e.target.value }
-              })}
-              disabled={!isEditing}
-            />
-          </div>
-          <div className="md:col-span-2">
-            <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-              Hero Image Path
-            </label>
-            <Input
-              type="text"
-              value={data.hero_content.image || ""}
-              onChange={(e) => setData({
-                ...data,
-                hero_content: { ...data.hero_content, image: e.target.value }
-              })}
-              disabled={!isEditing}
-              placeholder="e.g. /img/About.png"
-            />
-          </div>
-        </div>
-      </ComponentCard>
 
-      <ComponentCard title="Banner Section">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-              Banner Title
+              Hero Image
             </label>
-            <Input
-              type="text"
-              value={data.banner_content.title || ""}
-              onChange={(e) => setData({
-                ...data,
-                banner_content: { ...data.banner_content, title: e.target.value }
-              })}
-              disabled={!isEditing}
-            />
-          </div>
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-              Banner Tagline
-            </label>
-            <Input
-              type="text"
-              value={data.banner_content.tagline || ""}
-              onChange={(e) => setData({
-                ...data,
-                banner_content: { ...data.banner_content, tagline: e.target.value }
-              })}
-              disabled={!isEditing}
-            />
-          </div>
-        </div>
-      </ComponentCard>
-
-      <ComponentCard
-        title="Content Blocks"
-        action={isEditing && (
-          <Button size="sm" variant="outline" onClick={addContentBlock}>
-            + Add Block
-          </Button>
-        )}
-      >
-        <div className="space-y-8">
-          {data.content_blocks.map((block, index) => (
-            <div key={index} className="relative p-4 border border-gray-200 dark:border-gray-800 rounded-xl bg-gray-50/50 dark:bg-gray-800/20">
-              {isEditing && (
-                <button
-                  onClick={() => removeContentBlock(index)}
-                  className="absolute -top-3 -right-3 bg-white dark:bg-gray-900 text-error-500 rounded-full p-1 shadow-sm border border-gray-100 dark:border-gray-800 hover:bg-error-50"
-                  title="Remove Block"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
+            <div className="mt-2 text-sm">
+              {heroImagePreview ? (
+                <div className="relative inline-block w-full max-w-sm rounded-xl overflow-hidden shadow-sm border border-gray-200 dark:border-gray-800">
+                  <img
+                    src={heroImagePreview}
+                    alt="Hero"
+                    className="w-full h-auto object-cover max-h-[300px]"
+                  />
+                  {isEditing && (
+                    <button
+                      onClick={() => {
+                        setHeroImageFile(null);
+                        setHeroImagePreview(null);
+                      }}
+                      className="absolute top-2 right-2 bg-white text-error-500 rounded-full p-2 shadow-md hover:bg-error-50"
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <div className="w-full max-w-sm h-32 rounded-xl border border-dashed border-gray-300 dark:border-gray-700 flex items-center justify-center text-gray-400 bg-gray-50 dark:bg-gray-800/50">
+                  No Hero Image
+                </div>
               )}
 
-              <div className="grid grid-cols-1 gap-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                      Block Type
-                    </label>
-                    <Input
-                      type="text"
-                      value={block.type}
-                      onChange={(e) => handleContentBlockChange(index, "type", e.target.value)}
-                      disabled={!isEditing}
-                      placeholder="e.g. text"
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                      Block Heading
-                    </label>
-                    <Input
-                      type="text"
-                      value={block.heading}
-                      onChange={(e) => handleContentBlockChange(index, "heading", e.target.value)}
-                      disabled={!isEditing}
-                    />
-                  </div>
+              {isEditing && (
+                <div className="mt-4 max-w-sm">
+                  <FileInput onChange={handleFileChange} />
                 </div>
-                <div>
-                  <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                    Block Body
-                  </label>
-                  <RichTextEditor
-                    value={block.body}
-                    onChange={(value) => handleContentBlockChange(index, "body", value)}
-                    disabled={!isEditing}
-                  />
-                </div>
-              </div>
+              )}
             </div>
-          ))}
-
-          {data.content_blocks.length === 0 && (
-            <div className="text-center py-6 text-gray-400 italic">
-              No content blocks added yet.
-            </div>
-          )}
+          </div>
         </div>
       </ComponentCard>
 

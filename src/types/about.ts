@@ -1,18 +1,7 @@
 export interface HeroContent {
   heading: string | null;
   subtext: string | null;
-  image: string | null;
-}
-
-export interface BannerContent {
-  title: string | null;
-  tagline: string | null;
-}
-
-export interface ContentBlock {
-  type: string;
-  heading: string;
-  body: string;
+  image: File | string | null;
 }
 
 export interface AboutRecord {
@@ -22,8 +11,6 @@ export interface AboutRecord {
     text: string | null;
   };
   hero_content: HeroContent;
-  banner_content: BannerContent;
-  content_blocks: ContentBlock[];
   is_active: boolean;
   created_at?: string;
   updated_at?: string;

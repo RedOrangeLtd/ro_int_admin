@@ -6,7 +6,7 @@ export const aboutService = {
     return api.get<AboutResponse>(`/admin/abouts/${id}`);
   },
 
-  updateAbout: async (id: number | string, data: Partial<AboutRecord>): Promise<AboutUpdateResponse> => {
+  updateAbout: async (id: number | string, data: FormData | Partial<AboutRecord>): Promise<AboutUpdateResponse> => {
     return api.post<AboutUpdateResponse>(`/admin/abouts/${id}`, data);
   },
 

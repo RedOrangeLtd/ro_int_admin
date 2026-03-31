@@ -26,11 +26,11 @@ const navItems: NavItem[] = [
     name: "Dashboard",
     path: "/",
   },
-  // {
-  //   icon: <CalenderIcon />,
-  //   name: "Calendar",
-  //   path: "/calendar",
-  // },
+  {
+    icon: <PageIcon />,
+    name: "About Setup",
+    path: "/about",
+  },
   {
     icon: <PageIcon />,
     name: "Home Setup",
@@ -46,11 +46,7 @@ const navItems: NavItem[] = [
     name: "Teams",
     path: "/teams",
   },
-  {
-    icon: <PageIcon />,
-    name: "About Setup",
-    path: "/about",
-  },
+
   {
     icon: <ListIcon />,
     name: "Contact Setup",
