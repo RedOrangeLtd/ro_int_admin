@@ -1,5 +1,4 @@
 import { ApexOptions } from "apexcharts";
-import { useState } from "react";
 import Chart from "react-apexcharts";
 
 export default function MonthlySalesChart() {
@@ -88,15 +87,6 @@ export default function MonthlySalesChart() {
       data: [168, 385, 201, 298, 187, 195, 291, 110, 215, 390, 280, 112],
     },
   ];
-  const [isOpen, setIsOpen] = useState(false);
-
-  function toggleDropdown() {
-    setIsOpen(!isOpen);
-  }
-
-  function closeDropdown() {
-    setIsOpen(false);
-  }
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-5 pt-5 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6 sm:pt-6">
       <div className="max-w-full overflow-x-auto custom-scrollbar">
