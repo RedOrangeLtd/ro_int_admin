@@ -7,22 +7,30 @@ import PortfolioTable from "../../components/Portfolio/PortfolioTable";
 import PortfolioModal from "../../components/Portfolio/PortfolioModal";
 import { PortfolioProject } from "../../types/portfolio";
 import { portfolioService } from "../../services/portfolioService";
-import Alert from "../../components/ui/alert/Alert";
+import Swal from "sweetalert2";
 
 export default function Portfolio() {
   const [projects, setProjects] = useState<PortfolioProject[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editData, setEditData] = useState<PortfolioProject | null>(null);
-  const [notification, setNotification] = useState<{
-    variant: "success" | "error";
-    title: string;
-    message: string;
-  } | null>(null);
 
   useEffect(() => {
     loadProjects();
   }, []);
+
+  const getSwalConfig = (icon: "success" | "error" | "warning", title: string, text: string) => {
+    const isDarkMode = document.documentElement.classList.contains("dark");
+    return {
+      icon,
+      title,
+      text,
+      confirmButtonColor: "#4F46E5",
+      cancelButtonColor: "#EF4444",
+      background: isDarkMode ? "#1f2937" : "#fff",
+      color: isDarkMode ? "#fff" : "#000",
+    } as any;
+  };
 
   const loadProjects = async () => {
     try {
@@ -32,11 +40,7 @@ export default function Portfolio() {
         setProjects(response.data);
       }
     } catch (error: any) {
-      setNotification({
-        variant: "error",
-        title: "Error",
-        message: error.message || "Failed to load projects",
-      });
+      Swal.fire(getSwalConfig("error", "Error", error.message || "Failed to load projects"));
     } finally {
       setIsLoading(false);
     }
@@ -62,41 +66,32 @@ export default function Portfolio() {
       }
 
       if (response.success) {
-        setNotification({
-          variant: "success",
-          title: "Success",
-          message: response.message || `Project ${editData ? "updated" : "created"} successfully`,
-        });
+        await Swal.fire(getSwalConfig("success", "Success!", response.message || `Project ${editData ? "updated" : "created"} successfully`));
         loadProjects();
       }
     } catch (error: any) {
-      setNotification({
-        variant: "error",
-        title: "Save Error",
-        message: error.message || "Failed to save project",
-      });
+      Swal.fire(getSwalConfig("error", "Save Error", error.message || "Failed to save project"));
     }
   };
 
   const handleDeleteProject = async (id: number | string) => {
-    if (!window.confirm("Are you sure you want to delete this project?")) return;
+    const result = await Swal.fire({
+      ...getSwalConfig("warning", "Are you sure?", "This project will be permanently removed."),
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "Cancel",
+    });
 
-    try {
-      const response = await portfolioService.deletePortfolio(id);
-      if (response.success) {
-        setNotification({
-          variant: "success",
-          title: "Deleted",
-          message: response.message || "Project removed successfully",
-        });
-        loadProjects();
+    if (result.isConfirmed) {
+      try {
+        const response = await portfolioService.deletePortfolio(id);
+        if (response.success) {
+          await Swal.fire(getSwalConfig("success", "Deleted!", response.message || "Project removed successfully"));
+          loadProjects();
+        }
+      } catch (error: any) {
+        Swal.fire(getSwalConfig("error", "Delete Error", error.message || "Failed to delete project"));
       }
-    } catch (error: any) {
-      setNotification({
-        variant: "error",
-        title: "Delete Error",
-        message: error.message || "Failed to delete project",
-      });
     }
   };
 
@@ -109,14 +104,6 @@ export default function Portfolio() {
       <PageBreadcrumb pageTitle="Portfolio" />
 
       <div className="space-y-6">
-        {notification && (
-          <Alert
-            variant={notification.variant}
-            title={notification.title}
-            message={notification.message}
-          />
-        )}
-
         <ComponentCard title="Projects List">
           <div className="mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <p className="text-sm text-gray-500 dark:text-gray-400 max-w-lg">

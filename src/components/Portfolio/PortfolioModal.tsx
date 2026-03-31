@@ -15,7 +15,7 @@ interface PortfolioModalProps {
   editData: PortfolioProject | null;
 }
 
-const REGIONS = ["ASIA", "Europe", "Africa", "America", "Oceania"];
+const REGIONS = ["ASIA", "Europe", "Africa", "Americas", "Oceania"];
 
 export default function PortfolioModal({
   isOpen,
@@ -51,7 +51,7 @@ export default function PortfolioModal({
             description: detail.description || "",
             link: detail.link || "",
             duration: detail.duration || "",
-            is_active: detail.is_active,
+            is_active: !!detail.is_active,
             image: detail.image,
           });
           setImagePreview(typeof detail.image === "string" ? (detail.image as string) : null);
@@ -121,81 +121,85 @@ export default function PortfolioModal({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      className="max-w-[700px]"
+      className="max-w-[640px]"
     >
       <div className="px-6 pt-6 border-b border-gray-100 dark:border-white/[0.05] pb-4">
         <h3 className="text-xl font-semibold text-gray-800 dark:text-white/90">
           {editData ? "Edit Project" : "Add New Project"}
         </h3>
+        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+          Fill in the details below to {editData ? "update" : "create"} the portfolio entry.
+        </p>
       </div>
-      
+
       {isLoadingDetails ? (
-        <div className="flex justify-center items-center py-20">
-          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-brand-600"></div>
+        <div className="flex justify-center items-center py-24">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-600"></div>
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className="space-y-5 p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <form onSubmit={handleSubmit} className="space-y-6 p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">
                 Region
               </label>
               <select
                 value={formData.region}
                 onChange={(e) => setFormData({ ...formData, region: e.target.value })}
-                className="w-full h-11 px-4 rounded-lg border border-gray-200 dark:border-white/[0.05] bg-transparent text-gray-800 dark:text-white/90 outline-none focus:border-brand-500"
+                className="w-full h-11 px-4 rounded-lg border border-gray-200 dark:border-white/[0.05] bg-transparent text-gray-800 dark:text-white/90 outline-none focus:border-brand-500 transition-colors"
                 required
               >
                 {REGIONS.map((region) => (
-                  <option key={region} value={region}>
+                  <option key={region} value={region} className="dark:bg-gray-800">
                     {region}
                   </option>
                 ))}
               </select>
             </div>
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">
                 Title
               </label>
               <Input
                 type="text"
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                placeholder="Project Title"
+                placeholder="Enter Project Title"
                 required
               />
             </div>
           </div>
 
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-              Link (Optional)
-            </label>
-            <Input
-              type="text"
-              value={formData.link || ""}
-              onChange={(e) => setFormData({ ...formData, link: e.target.value })}
-              placeholder="https://example.com"
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                Link (Optional)
+              </label>
+              <Input
+                type="text"
+                value={formData.link || ""}
+                onChange={(e) => setFormData({ ...formData, link: e.target.value })}
+                placeholder="https://example.com"
+              />
+            </div>
+            <div>
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                Duration (Optional)
+              </label>
+              <Input
+                type="text"
+                value={formData.duration || ""}
+                onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
+                placeholder="e.g. 2019 - Present"
+              />
+            </div>
           </div>
 
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-              Duration (Optional)
-            </label>
-            <Input
-              type="text"
-              value={formData.duration || ""}
-              onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
-              placeholder="e.g. 2019 - Present"
-            />
-          </div>
-
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+            <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">
               Description
             </label>
-            <div className="bg-white dark:bg-gray-900 rounded-lg">
+            <div className="bg-white dark:bg-gray-900 rounded-xl overflow-hidden border border-gray-200 dark:border-white/[0.05]">
               <RichTextEditor
                 value={formData.description || ""}
                 onChange={(val) => setFormData({ ...formData, description: val })}
@@ -204,14 +208,21 @@ export default function PortfolioModal({
             </div>
           </div>
 
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-              Project Image
-            </label>
-            <div className="space-y-4">
-              {imagePreview && (
-                <div className="relative w-full max-w-[200px] h-32 rounded-lg overflow-hidden border border-gray-100 dark:border-white/[0.05]">
-                  <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+            <div>
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                Project Image
+              </label>
+              <FileInput onChange={handleFileChange} />
+            </div>
+
+            {imagePreview && (
+              <div>
+                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                  Preview
+                </label>
+                <div className="relative w-full h-32 rounded-xl overflow-hidden border border-gray-100 dark:border-white/[0.05] shadow-sm group">
+                  <img src={imagePreview} alt="Preview" className="w-full h-full object-cover transition-transform group-hover:scale-105" />
                   <button
                     type="button"
                     onClick={() => {
@@ -219,27 +230,26 @@ export default function PortfolioModal({
                       setSelectedFile(null);
                       setFormData({ ...formData, image: null });
                     }}
-                    className="absolute top-1 right-1 bg-white/80 text-error-500 rounded-full p-1 hover:bg-white"
+                    className="absolute top-2 right-2 bg-white/90 dark:bg-gray-800/90 text-error-500 rounded-full p-1.5 hover:bg-white dark:hover:bg-gray-700 shadow-sm backdrop-blur-sm transition-all"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                   </button>
                 </div>
-              )}
-              <FileInput onChange={handleFileChange} />
-            </div>
+              </div>
+            )}
           </div>
 
-          <div className="py-2">
+          <div className="pt-2">
             <Checkbox
-              label="Active Status"
-              checked={formData.is_active || false}
+              label="Publicly Visible"
+              checked={!!formData.is_active}
               onChange={(checked: boolean) => setFormData({ ...formData, is_active: checked })}
             />
           </div>
 
-          <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-100 dark:border-white/[0.05]">
+          <div className="flex items-center justify-end gap-3 pt-6 border-t border-gray-100 dark:border-white/[0.05]">
             <Button variant="outline" type="button" onClick={onClose} disabled={isSubmitting}>
               Cancel
             </Button>
