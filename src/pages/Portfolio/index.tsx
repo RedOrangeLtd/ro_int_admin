@@ -29,6 +29,8 @@ export default function Portfolio() {
       cancelButtonColor: "#EF4444",
       background: isDarkMode ? "#1f2937" : "#fff",
       color: isDarkMode ? "#fff" : "#000",
+      heightAuto: false,
+      scrollbarPadding: false,
     } as any;
   };
 
