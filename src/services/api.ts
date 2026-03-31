@@ -44,9 +44,11 @@ export const api = {
   post: <T>(endpoint: string, body?: any, options?: RequestOptions) =>
     apiRequest<T>(endpoint, {
       ...options,
-      method: 'POST',
-      body: body instanceof FormData ? body : JSON.stringify(body)
+      method: "POST",
+      body: body instanceof FormData ? body : JSON.stringify(body),
     }),
+  delete: <T>(endpoint: string, options?: RequestOptions) =>
+    apiRequest<T>(endpoint, { ...options, method: "DELETE" }),
 };
 
 export default api;
