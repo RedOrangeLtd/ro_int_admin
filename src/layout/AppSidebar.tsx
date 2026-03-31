@@ -9,7 +9,7 @@ import {
   HorizontaLDots,
   ListIcon,
   PageIcon,
-  // PlugInIcon,
+  GroupIcon,
   UserCircleIcon,
 } from "../icons";
 
@@ -52,7 +52,7 @@ const navItems: NavItem[] = [
     path: "/contact",
   },
   {
-    icon: <UserCircleIcon />,
+    icon: <GroupIcon />,
     name: "User Management",
     path: "/users",
   },
