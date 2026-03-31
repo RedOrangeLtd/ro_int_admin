@@ -95,32 +95,32 @@ export default function AboutForm() {
     }
   };
 
-  const handleDelete = async () => {
-    if (!data) return;
-    if (!window.confirm("Are you sure you want to delete this about record?"))
-      return;
+  // const handleDelete = async () => {
+  //   if (!data) return;
+  //   if (!window.confirm("Are you sure you want to delete this about record?"))
+  //     return;
 
-    try {
-      setSaving(true);
-      const response = await aboutService.deleteAbout(data.id);
-      if (response.success) {
-        setNotification({
-          variant: "success",
-          title: "Deleted",
-          message: response.message || "About record deleted successfully",
-        });
-        setData(null);
-      }
-    } catch (error: any) {
-      setNotification({
-        variant: "error",
-        title: "Error",
-        message: error.message || "Failed to delete about record",
-      });
-    } finally {
-      setSaving(false);
-    }
-  };
+  //   try {
+  //     setSaving(true);
+  //     const response = await aboutService.deleteAbout(data.id);
+  //     if (response.success) {
+  //       setNotification({
+  //         variant: "success",
+  //         title: "Deleted",
+  //         message: response.message || "About record deleted successfully",
+  //       });
+  //       setData(null);
+  //     }
+  //   } catch (error: any) {
+  //     setNotification({
+  //       variant: "error",
+  //       title: "Error",
+  //       message: error.message || "Failed to delete about record",
+  //     });
+  //   } finally {
+  //     setSaving(false);
+  //   }
+  // };
 
   if (loading) {
     return (
@@ -175,9 +175,9 @@ export default function AboutForm() {
               </>
             ) : (
               <>
-                <Button size="sm" variant="outline" className="text-error-600" onClick={handleDelete}>
+                {/* <Button size="sm" variant="outline" className="text-error-600" onClick={handleDelete}>
                   Delete
-                </Button>
+                </Button> */}
                 <Button size="sm" variant="primary" onClick={() => setIsEditing(true)}>
                   Edit Content
                 </Button>
