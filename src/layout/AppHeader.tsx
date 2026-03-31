@@ -4,11 +4,56 @@ import { Link } from "react-router";
 import { ThemeToggleButton } from "../components/common/ThemeToggleButton";
 import UserDropdown from "../components/header/UserDropdown";
 import { useSidebar } from "../context/SidebarContext";
+import Swal from "sweetalert2";
+import api from "../services/api";
+import { BoltIcon } from "../icons";
 
 const AppHeader: React.FC = () => {
   const [isApplicationMenuOpen, setApplicationMenuOpen] = useState(false);
-
+  const [isClearing, setIsClearing] = useState(false);
   const { isMobileOpen, toggleSidebar, toggleMobileSidebar } = useSidebar();
+  const handleClearCache = async () => {
+    const isDarkMode = document.documentElement.classList.contains("dark");
+    const result = await Swal.fire({
+      title: "Clear System Cache?",
+      text: "This will refresh the server-side cache. Do you want to proceed?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#4F46E5",
+      cancelButtonColor: "#EF4444",
+      confirmButtonText: "Yes, clear it!",
+      background: isDarkMode ? "#1f2937" : "#fff",
+      color: isDarkMode ? "#fff" : "#000",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        setIsClearing(true);
+        const response: any = await api.post("/admin/cache-clear");
+        if (response.success || response.status === 200) {
+          Swal.fire({
+            title: "Success!",
+            text: response.message || "System cache has been cleared.",
+            icon: "success",
+            confirmButtonColor: "#4F46E5",
+            background: isDarkMode ? "#1f2937" : "#fff",
+            color: isDarkMode ? "#fff" : "#000",
+          });
+        }
+      } catch (error: any) {
+        Swal.fire({
+          title: "Error!",
+          text: error.message || "Failed to clear cache.",
+          icon: "error",
+          confirmButtonColor: "#4F46E5",
+          background: isDarkMode ? "#1f2937" : "#fff",
+          color: isDarkMode ? "#fff" : "#000",
+        });
+      } finally {
+        setIsClearing(false);
+      }
+    }
+  };
 
   const handleToggle = () => {
     if (window.innerWidth >= 1024) {
@@ -107,6 +152,20 @@ const AppHeader: React.FC = () => {
             } items-center justify-between w-full gap-4 px-5 py-4 lg:flex shadow-theme-md lg:justify-end lg:px-0 lg:shadow-none`}
         >
           <div className="flex items-center gap-2 2xsm:gap-3">
+            {/* <!-- Clear Cache --> */}
+            <button
+              onClick={handleClearCache}
+              disabled={isClearing}
+              className="relative flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 transition-all hover:text-brand-500 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:text-brand-400"
+              title="Clear System Cache"
+            >
+              {isClearing ? (
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-brand-500 border-t-transparent"></div>
+              ) : (
+                <BoltIcon className="size-5" />
+              )}
+            </button>
+
             {/* <!-- Dark Mode Toggler --> */}
             <ThemeToggleButton />
             {/* <!-- Dark Mode Toggler --> */}
