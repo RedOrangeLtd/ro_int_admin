@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
-import ContactForm from "../../components/Contact/ContactForm";
 import ContactTable from "../../components/Contact/ContactTable";
 import ContactModal from "../../components/Contact/ContactModal";
 import ComponentCard from "../../components/common/ComponentCard";
@@ -104,9 +103,6 @@ export default function Contact() {
       <PageBreadcrumb pageTitle="Contact Us" />
 
       <div className="space-y-6">
-        {/* General Contact Info Setup (Banner, Background, Heading) */}
-        <ContactForm />
-
         {/* Office Locations Management */}
         <ComponentCard title="Office Locations">
           <div className="mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
