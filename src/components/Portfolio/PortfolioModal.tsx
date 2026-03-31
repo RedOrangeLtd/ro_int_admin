@@ -13,6 +13,8 @@ interface PortfolioModalProps {
   editData: PortfolioProject | null;
 }
 
+const REGIONS = ["ASIA", "Europe", "Africa", "America", "Oceania"];
+
 export default function PortfolioModal({
   isOpen,
   onClose,
@@ -20,7 +22,7 @@ export default function PortfolioModal({
   editData,
 }: PortfolioModalProps) {
   const [formData, setFormData] = useState<Partial<PortfolioProject>>({
-    region: "ASIA",
+    region: REGIONS[0],
     title: "",
     description: "",
     link: "",
@@ -36,7 +38,7 @@ export default function PortfolioModal({
   useEffect(() => {
     if (editData) {
       setFormData({
-        region: editData.region || "ASIA",
+        region: editData.region || REGIONS[0],
         title: editData.title || "",
         description: editData.description || "",
         link: editData.link || "",
@@ -47,7 +49,7 @@ export default function PortfolioModal({
       setImagePreview(typeof editData.image === "string" ? editData.image : null);
     } else {
       setFormData({
-        region: "ASIA",
+        region: REGIONS[0],
         title: "",
         description: "",
         link: "",
@@ -118,11 +120,11 @@ export default function PortfolioModal({
               className="w-full h-11 px-4 rounded-lg border border-gray-200 dark:border-white/[0.05] bg-transparent text-gray-800 dark:text-white/90 outline-none focus:border-brand-500"
               required
             >
-              <option value="ASIA">ASIA</option>
-              <option value="Europe">Europe</option>
-              <option value="Africa">Africa</option>
-              <option value="America">America</option>
-              <option value="Oceania">Oceania</option>
+              {REGIONS.map((region) => (
+                <option key={region} value={region}>
+                  {region}
+                </option>
+              ))}
             </select>
           </div>
           <div>
