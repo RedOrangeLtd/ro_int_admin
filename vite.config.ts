@@ -9,10 +9,25 @@ export default defineConfig({
     svgr({
       svgrOptions: {
         icon: true,
-        // This will transform your SVG to a React component
         exportType: "named",
         namedExport: "ReactComponent",
       },
     }),
   ],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          router: ['react-router'],
+          charts: ['apexcharts', 'react-apexcharts'],
+          calendar: ['@fullcalendar/core', '@fullcalendar/daygrid', '@fullcalendar/interaction', '@fullcalendar/list', '@fullcalendar/react', '@fullcalendar/timegrid'],
+          editor: ['react-quill-new'],
+          maps: ['@react-jvectormap/core', '@react-jvectormap/world'],
+          utils: ['clsx', 'tailwind-merge', 'flatpickr', 'sweetalert2', 'swiper']
+        }
+      }
+    },
+    chunkSizeWarningLimit: 1000
+  }
 });
