@@ -1,0 +1,34 @@
+name: Auto Deployment
+
+on:
+  push:
+    branches:
+      - "main"
+
+jobs:
+  Deploy-to-Main:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: SSH into server and perform git operations
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.IP }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.SSH_KEY }}
+          passphrase: ${{ secrets.PASSPHRASE }}
+          port: ${{ secrets.PORT }}
+          script: |
+            cd /var/www/ro_int/admin/
+            bash auto_deploy.bash
+  Notify:
+    needs: Deploy-to-Main
+    if: always()
+    uses: ./.github/workflows/discord-notify.yml
+    with:
+      status: ${{ needs.Deploy-to-Main.result }}
+      actor: ${{ github.actor }}
+      commit_message: ${{ toJSON(github.event.head_commit.message) }}
+      run_url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    secrets:
+      DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
