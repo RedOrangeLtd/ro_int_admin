@@ -15,7 +15,7 @@ interface PortfolioModalProps {
   editData: PortfolioProject | null;
 }
 
-const REGIONS = ["ASIA", "Europe", "Africa", "Americas", "Oceania"];
+const REGIONS = ["ASIA", "Europe", "Africa"];
 
 export default function PortfolioModal({
   isOpen,
