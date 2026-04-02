@@ -16,7 +16,7 @@ export interface DashboardPortfolio {
   id: number;
   title: string;
   region: string;
-  project_image: string;
+  image: string;
   created_at: string;
 }
 
