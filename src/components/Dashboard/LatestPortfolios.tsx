@@ -5,6 +5,8 @@ interface LatestPortfoliosProps {
 }
 
 export default function LatestPortfolios({ portfolios }: LatestPortfoliosProps) {
+  const storageUrl = import.meta.env.VITE_STORAGE_URL;
+
   return (
     <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
       <div className="mb-5 flex items-center justify-between">
@@ -24,7 +26,7 @@ export default function LatestPortfolios({ portfolios }: LatestPortfoliosProps) 
             <div key={portfolio.id} className="flex items-center gap-3 border-b border-gray-100 pb-3 last:border-0 last:pb-0 dark:border-white/[0.05]">
               <div className="h-12 w-16 overflow-hidden rounded-lg bg-gray-100 last:border-0 last:pb-0 dark:bg-gray-800">
                 <img
-                  src={portfolio.project_image}
+                  src={portfolio.image?.startsWith('http') ? portfolio.image : `${storageUrl}${portfolio.image}`}
                   alt={portfolio.title}
                   className="h-full w-full object-cover"
                 />

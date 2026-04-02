@@ -37,6 +37,7 @@ export default function PortfolioModal({
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
+  const storageUrl = import.meta.env.VITE_STORAGE_URL;
 
   useEffect(() => {
     const loadDetails = async (id: number | string) => {
@@ -54,7 +55,9 @@ export default function PortfolioModal({
             is_active: !!detail.is_active,
             image: detail.image,
           });
-          setImagePreview(typeof detail.image === "string" ? (detail.image as string) : null);
+          setImagePreview(typeof detail.image === "string" 
+            ? (detail.image.startsWith('http') ? detail.image : `${storageUrl}${detail.image}`) 
+            : null);
         }
       } catch (error) {
         console.error("Failed to load project details", error);
